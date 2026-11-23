@@ -33,7 +33,7 @@ import {
     moveCurrentBlockUp, moveCurrentBlockDown,
 } from "./block/commands.js"
 import { deleteLine } from "./block/delete-line.js"
-import { formatBlockContent } from "./block/format-code.js"
+import { formatBlockCommand } from "./block/format-code.js"
 import { transposeChars } from "./block/transpose-chars.js"
 
 import { cutCommand, copyCommand, pasteCommand } from "./clipboard/copy-paste.js"
@@ -203,7 +203,7 @@ const HEYNOTE_COMMANDS = {
     moveLineUp: cmdLessContext(moveLineUp, "Edit", "Move line up"),
     moveLineDown: cmdLessContext(moveLineDown, "Edit", "Move line down"),
     deleteLine: cmdLessContext(deleteLine, "Edit", "Delete line"),
-    formatBlockContent: cmdLessContext(formatBlockContent, "Block", "Format block content"),
+    formatBlockContent: cmdLessContext(formatBlockCommand, "Block", "Format block content"),
     moveCurrentBlockUp: cmdLessContext(moveCurrentBlockUp, "Block", "Move current block up"),
     moveCurrentBlockDown: cmdLessContext(moveCurrentBlockDown, "Block", "Move current block down"),
     newCursorAbove: cmdLessContext(newCursorAbove, "Cursor", "Add cursor above"),

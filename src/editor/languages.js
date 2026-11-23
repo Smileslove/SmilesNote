@@ -30,39 +30,44 @@ import { groovy } from "@codemirror/legacy-modes/mode/groovy"
 import { diff } from "@codemirror/legacy-modes/mode/diff";
 import { powerShell } from "@codemirror/legacy-modes/mode/powershell";
 import { lua } from "@codemirror/legacy-modes/mode/lua";
+import { objectiveC } from "@codemirror/legacy-modes/mode/clike"
+import { protobuf } from "@codemirror/legacy-modes/mode/protobuf"
+import { dockerFile } from "@codemirror/legacy-modes/mode/dockerfile"
 
-import typescriptPlugin from "prettier/plugins/typescript"
-import babelPrettierPlugin from "prettier/plugins/babel"
-import htmlPrettierPlugin from "prettier/plugins/html"
-import cssPrettierPlugin from "prettier/plugins/postcss"
-import markdownPrettierPlugin from "prettier/plugins/markdown"
-import yamlPrettierPlugin from "prettier/plugins/yaml"
-import * as prettierPluginEstree from "prettier/plugins/estree";
-
+import { graphqlParser } from "./graphql-language.ts"
 import { mathjsLanguage } from "heynote-lang-mathjs"
 
 
+/**
+ * Formatting backends are declared as plain data and loaded by
+ * `src/editor/formatting/`:
+ *
+ *   {kind: "prettier", parser: "<name>"}   Prettier standalone, lazy plugins
+ *   {kind: "wasm", formatter: "<id>"}      bundled wasm formatter (ruff, gofmt, ...)
+ *   {kind: "dprint", plugin: "<id>"}       dprint plugin (toml)
+ *
+ * A language without a `formatter` has no bundled formatter. That is a valid,
+ * honest state; the UI reports it instead of failing silently. Never import
+ * Prettier, a wasm file or a plugin in this file: `vite.config.mjs` imports
+ * LANGUAGES in Node at config time, and capability checks run on the UI thread.
+ */
 class Language {
     /**
      * @param token: The token used to identify the language in the buffer content
      * @param name: The name of the language
      * @param parser: The Lezer parser used to parse the language
      * @param guesslang: The name of the language as used by the guesslang library
-     * @param prettier: The prettier configuration for the language (if any)
+     * @param formatter: The formatter spec for the language (if any)
      * @param inheritIndentation: If true, the indentService will return null for blocks of this type, which will 
      *                            result in the  line inheriting the indentation of the one above it
      */
-    constructor({ token, name, parser, guesslang, prettier, inheritIndentation }) {
+    constructor({ token, name, parser, guesslang, formatter, inheritIndentation }) {
         this.token = token
         this.name = name
         this.parser = parser
         this.guesslang = guesslang
-        this.prettier = prettier
+        this.formatter = formatter
         this.inheritIndentation = inheritIndentation
-    }
-
-    get supportsFormat() {
-        return !!this.prettier
     }
 }
 
@@ -86,20 +91,30 @@ export const LANGUAGES = [
         name: "JSON",
         parser: jsonLanguage.parser,
         guesslang: "json",
-        prettier: {parser:"json-stringify", plugins: [babelPrettierPlugin, prettierPluginEstree]},
+        formatter: {kind: "prettier", parser: "json-stringify"},
+    }),
+    new Language({
+        token: "jsonc",
+        name: "JSONC",
+        // JSON with comments/trailing commas. Prettier's lenient json parser
+        // keeps the author's line wrapping, so it does not force expansion.
+        parser: jsonLanguage.parser,
+        guesslang: null,
+        formatter: {kind: "prettier", parser: "json"},
     }),
     new Language({
         token: "python",
         name: "Python",
         parser: pythonLanguage.parser,
         guesslang: "py",
+        formatter: {kind: "wasm", formatter: "python"},
     }),
     new Language({
         token: "html",
         name: "HTML",
         parser: htmlLanguage.parser,
         guesslang: "html",
-        prettier: {parser:"html", plugins: [htmlPrettierPlugin]},
+        formatter: {kind: "prettier", parser: "html"},
     }),
     new Language({
         token: "sql",
@@ -107,19 +122,21 @@ export const LANGUAGES = [
         parser: StandardSQL.language.parser,
         guesslang: "sql",
         inheritIndentation: true,
+        formatter: {kind: "wasm", formatter: "sql"},
     }),
     new Language({
         token: "markdown",
         name: "Markdown",
         parser: markdownLanguage.parser,
         guesslang: "md",
-        prettier: {parser:"markdown", plugins: [markdownPrettierPlugin]},
+        formatter: {kind: "prettier", parser: "markdown"},
     }),
     new Language({
         token: "java",
         name: "Java",
         parser: javaLanguage.parser,
         guesslang: "java",
+        formatter: {kind: "prettier", parser: "java"},
     }),
     new Language({
         token: "lezer",
@@ -138,19 +155,53 @@ export const LANGUAGES = [
         name: "CSS",
         parser: cssLanguage.parser,
         guesslang: "css",
-        prettier: {parser:"css", plugins: [cssPrettierPlugin]},
+        formatter: {kind: "prettier", parser: "css"},
+    }),
+    new Language({
+        token: "scss",
+        name: "SCSS",
+        // Approximate highlighting: reuses the CSS parser. Formatting is exact
+        // (Prettier's scss parser).
+        parser: cssLanguage.parser,
+        guesslang: null,
+        formatter: {kind: "prettier", parser: "scss"},
+    }),
+    new Language({
+        token: "less",
+        name: "Less",
+        parser: cssLanguage.parser,
+        guesslang: null,
+        formatter: {kind: "prettier", parser: "less"},
     }),
     new Language({
         token: "xml",
         name: "XML",
         parser: xmlLanguage.parser,
         guesslang: "xml",
+        formatter: {kind: "prettier", parser: "xml"},
+    }),
+    new Language({
+        token: "graphql",
+        name: "GraphQL",
+        parser: graphqlParser,
+        guesslang: null,
+        formatter: {kind: "prettier", parser: "graphql"},
     }),
     new Language({
         token: "cpp",
         name: "C++",
         parser: cppLanguage.parser,
         guesslang: "cpp",
+        formatter: {kind: "wasm", formatter: "clang"},
+    }),
+    new Language({
+        token: "c",
+        name: "C",
+        parser: cppLanguage.parser,
+        // Guesslang cannot reliably tell C from C++; leave auto-detection to C++
+        // (the user can still pick C explicitly).
+        guesslang: null,
+        formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "rust",
@@ -163,6 +214,21 @@ export const LANGUAGES = [
         name: "C#",
         parser: csharpLanguage.parser,
         guesslang: "cs",
+        formatter: {kind: "wasm", formatter: "clang"},
+    }),
+    new Language({
+        token: "objectivec",
+        name: "Objective-C",
+        parser: StreamLanguage.define(objectiveC).parser,
+        guesslang: null,
+        formatter: {kind: "wasm", formatter: "clang"},
+    }),
+    new Language({
+        token: "protobuf",
+        name: "Protobuf",
+        parser: StreamLanguage.define(protobuf).parser,
+        guesslang: null,
+        formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "ruby",
@@ -175,25 +241,35 @@ export const LANGUAGES = [
         name: "Shell",
         parser: StreamLanguage.define(shell).parser,
         guesslang: "sh",
+        formatter: {kind: "wasm", formatter: "sh"},
+    }),
+    new Language({
+        token: "dockerfile",
+        name: "Dockerfile",
+        parser: StreamLanguage.define(dockerFile).parser,
+        guesslang: null,
+        formatter: {kind: "wasm", formatter: "dockerfile"},
     }),
     new Language({
         token: "yaml",
         name: "YAML",
         parser: StreamLanguage.define(yaml).parser,
         guesslang: "yaml",
-        prettier: {parser:"yaml", plugins: [yamlPrettierPlugin]},
+        formatter: {kind: "prettier", parser: "yaml"},
     }),
     new Language({
         token: "toml",
         name: "TOML",
         parser: StreamLanguage.define(toml).parser,
         guesslang: "toml",
+        formatter: {kind: "dprint", plugin: "toml"},
     }),
     new Language({
         token: "golang",
         name: "Go",
         parser: StreamLanguage.define(go).parser,
         guesslang: "go",
+        formatter: {kind: "wasm", formatter: "go"},
     }),
     new Language({
         token: "clojure",
@@ -218,28 +294,28 @@ export const LANGUAGES = [
         name: "JavaScript",
         parser: javascriptLanguage.parser,
         guesslang: "js",
-        prettier: {parser:"babel", plugins: [babelPrettierPlugin, prettierPluginEstree]},
+        formatter: {kind: "prettier", parser: "babel"},
     }),
     new Language({
         token: "jsx",
         name: "JSX",
         parser: jsxLanguage.parser,
         guesslang: null,
-        prettier: {parser:"babel", plugins: [babelPrettierPlugin, prettierPluginEstree]},
+        formatter: {kind: "prettier", parser: "babel"},
     }),
     new Language({
         token: "typescript",
         name: "TypeScript",
         parser: typescriptLanguage.parser,
         guesslang: "ts",
-        prettier: {parser:"typescript", plugins: [typescriptPlugin, prettierPluginEstree]},
+        formatter: {kind: "prettier", parser: "typescript"},
     }),
     new Language({
         token: "tsx",
         name: "TSX",
         parser: tsxLanguage.parser,
         guesslang: null,
-        prettier: {parser:"typescript", plugins: [typescriptPlugin, prettierPluginEstree]},
+        formatter: {kind: "prettier", parser: "typescript"},
     }),
     new Language({
         token: "swift",
@@ -282,6 +358,7 @@ export const LANGUAGES = [
         name: "Vue",
         parser: vueLanguage.parser,
         guesslang: null,
+        formatter: {kind: "prettier", parser: "vue"},
     }),
     new Language({
         token: "dart",
@@ -309,5 +386,3 @@ const languageMapping = Object.fromEntries(LANGUAGES.map(l => [l.token, l]))
 export function getLanguage(token) {
     return languageMapping[token]
 }
-
-

@@ -1,72 +1,31 @@
-import { EditorSelection } from "@codemirror/state"
+/**
+ * Format-block command entry point.
+ *
+ * The implementation lives in `src/editor/formatting/`; this module only keeps
+ * the historical export name used by the command palette and key bindings, and
+ * adds the one thing the formatting pipeline must not do itself: turning an
+ * outcome into a status-bar message (the pipeline stays store-free so it can be
+ * reused from a worker later).
+ */
+import { useHeynoteStore } from "../../stores/heynote-store.js"
+import { formatBlockContent } from "../formatting/index.js"
 
-import * as prettier from "prettier/standalone"
-import { getActiveNoteBlock } from "./block.js"
-import { getLanguage } from "../languages.js"
+export { formatBlockContent }
 
-
-export const formatBlockContent = async ({ state, dispatch }) => {
-    if (state.readOnly)
-        return false
-    const block = getActiveNoteBlock(state)
-
-    const language = getLanguage(block.language.name)
-    if (!language.prettier) {
-        return false
+/**
+ * Format the active block and report a failure/refusal in the status bar.
+ *
+ * A successful pass is silent; a failure, a refusal or a stale result leaves a
+ * transient message so the user never wonders why "nothing happened".
+ *
+ * @param {{state:import("@codemirror/state").EditorState, dispatch:Function}} view
+ */
+export async function formatBlockCommand(view) {
+    const outcome = await formatBlockContent(view)
+    if (outcome?.message) {
+        useHeynoteStore().setStatusMessage(outcome.message, {
+            kind: outcome.code === "syntax-error" || outcome.code === "internal-error" ? "error" : "warn",
+        })
     }
-    
-    // get current cursor position
-    const cursorPos = state.selection.asSingle().ranges[0].head
-    // get block content
-    const content = state.sliceDoc(block.content.from, block.content.to)
-
-    //console.log("prettier supports:", getSupportInfo())
-
-    // There is a performance bug in prettier causing formatWithCursor() to be extremely slow in some cases (https://github.com/prettier/prettier/issues/4801)
-    // To work around this we use format() when the cursor is in the beginning or the end of the block.
-    // This is not a perfect solution, and once the following PR is merged and released, we should be abe to remove this workaround:
-    // https://github.com/prettier/prettier/pull/15709
-    let useFormat = false
-    if (cursorPos == block.content.from || cursorPos == block.content.to) {
-        useFormat = true
-    }
-
-    let formattedContent
-    try {
-        if (useFormat) {
-            formattedContent = {
-                formatted: await prettier.format(content, {
-                    parser: language.prettier.parser,
-                    plugins: language.prettier.plugins,
-                    tabWidth: state.tabSize,
-                }),
-            }
-            formattedContent.cursorOffset = cursorPos == block.content.from ? 0 : formattedContent.formatted.length
-        } else {
-            formattedContent = await prettier.formatWithCursor(content, {
-                cursorOffset: cursorPos - block.content.from,
-                parser: language.prettier.parser,
-                plugins: language.prettier.plugins,
-                tabWidth: state.tabSize,
-            })
-        }
-    } catch (e) {
-        const hyphens = "----------------------------------------------------------------------------"
-        console.log(`Error when trying to format block:\n${hyphens}\n${e.message}\n${hyphens}`)
-        return false
-    }
-    
-    dispatch(state.update({
-        changes: {
-            from: block.content.from,
-            to: block.content.to,
-            insert: formattedContent.formatted,
-        },
-        selection: EditorSelection.cursor(block.content.from + Math.min(formattedContent.cursorOffset, formattedContent.formatted.length)),
-    }, {
-        userEvent: "input",
-        scrollIntoView: true,
-    }))
-    return true;
+    return outcome
 }
-

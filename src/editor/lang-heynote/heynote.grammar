@@ -25,12 +25,13 @@ MetadataEntry {
   noteDelimiterMark { "∞∞∞" }
 
   NoteLanguage {
-    "text" | "math" | "javascript" | "typescript" | "jsx" | "tsx" | "json" |
+    "text" | "math" | "javascript" | "typescript" | "jsx" | "tsx" | "json" | "jsonc" |
     "python" | "html" | "sql" | "markdown" | "java" | "php" | "css" |
-    "xml" | "cpp" | "rust" | "csharp" | "ruby" | "shell" | "yaml" |
-    "golang" | "clojure" | "elixir" | "erlang" | "lezer" | "toml" |
-    "swift" | "kotlin" | "groovy" | "diff" | "powershell" | "vue" |
-    "dart" | "scala" | "lua"| "mermaid"
+    "xml" | "cpp" | "c" | "rust" | "csharp" | "objectivec" | "protobuf" |
+    "ruby" | "shell" | "dockerfile" | "yaml" | "golang" | "clojure" |
+    "elixir" | "erlang" | "lezer" | "toml" | "swift" | "kotlin" | "groovy" |
+    "diff" | "powershell" | "vue" | "dart" | "scala" | "lua" | "mermaid" |
+    "scss" | "less" | "graphql"
   }
 
   Auto { "-a" }

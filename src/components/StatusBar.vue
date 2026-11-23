@@ -1,14 +1,11 @@
 <script>
     import { mapState, mapStores } from 'pinia'
     import UpdateStatusItem from './UpdateStatusItem.vue'
-    import { LANGUAGES } from '../editor/languages.js'
+    import { formattingUnavailableReason, languageName as languageLabel, supportsFormatting } from '../editor/formatting/index.js'
     import { formatDate, formatFullDate } from '../common/format-date'
     import { useHeynoteStore } from "../stores/heynote-store"
     import { useSettingsStore } from "../stores/settings-store"
     
-    const LANGUAGE_MAP = Object.fromEntries(LANGUAGES.map(l => [l.token, l]))
-    const LANGUAGE_NAMES = Object.fromEntries(LANGUAGES.map(l => [l.token, l.name]))
-
 
     export default {
         props: [
@@ -41,6 +38,8 @@
                 "currentLanguageAuto",
                 "currentCreatedTime",
                 "systemLocale",
+                "statusMessage",
+                "statusMessageKind",
             ]),
             ...mapState(useSettingsStore, [
                 "spellcheckEnabled",
@@ -50,16 +49,22 @@
             ]),
 
             languageName() {
-                return LANGUAGE_NAMES[this.currentLanguage] || this.currentLanguage
+                return languageLabel(this.currentLanguage)
             },
 
             className() {
                 return `status`
             },
 
-            supportsFormat() {
-                const lang = LANGUAGE_MAP[this.currentLanguage]
-                return !!lang ? lang.supportsFormat : false
+            formatAvailable() {
+                return supportsFormatting(this.currentLanguage)
+            },
+
+            formatTitle() {
+                if (!this.formatAvailable) {
+                    return formattingUnavailableReason(this.currentLanguage) || 'Formatting is not available for this block'
+                }
+                return this.getTooltip('Format Block Content', 'formatBlockContent')
             },
 
             cmdKey() {
@@ -91,6 +96,17 @@
         },
 
         methods: {
+            onFormatClick() {
+                if (this.formatAvailable) {
+                    this.$emit('formatCurrentBlock')
+                } else {
+                    this.heynoteStore.setStatusMessage(
+                        formattingUnavailableReason(this.currentLanguage) || 'Formatting is not available for this block',
+                        { kind: 'warn' },
+                    )
+                }
+            },
+
             onSpellcheckingContextMenu(event) {
                 event.preventDefault()
                 window.heynote.mainProcess.invoke('showSpellcheckingContextMenu')
@@ -126,6 +142,14 @@
         >
             {{ formattedCreatedTime }}
         </div>
+        <div 
+            v-if="statusMessage"
+            class="status-block message"
+            :class="statusMessageKind"
+            :title="statusMessage"
+        >
+            {{ statusMessage }}
+        </div>
         <div class="spacer"></div>
         <div 
             @click.stop="$emit('openBufferSelector')"
@@ -143,10 +167,10 @@
             <span v-if="currentLanguageAuto" class="auto">(auto)</span>
         </div>
         <div 
-            v-if="supportsFormat"
-            @click.stop="$emit('formatCurrentBlock')"
+            @click.stop="onFormatClick"
             class="status-block format clickable"
-            :title="getTooltip('Format Block Content', 'formatBlockContent')"
+            :class="{disabled: !formatAvailable}"
+            :title="formatTitle"
         >
             <span class="icon icon-format"></span>
         </div>
@@ -250,11 +274,23 @@
         .format
             padding-top: 0
             padding-bottom: 0
+            &.disabled
+                opacity: 0.35
             .icon
                 background-size: 16px
                 background-repeat: no-repeat
                 background-position: center center
                 background-image: url("@/assets/icons/format.svg")
+
+        .message
+            max-width: 46vw
+            overflow: hidden
+            text-overflow: ellipsis
+            color: rgba(255, 255, 255, 0.85)
+            &.warn
+                color: #ffd479
+            &.error
+                color: #ff9f9f
 
         .spellcheck
             padding-top: 0

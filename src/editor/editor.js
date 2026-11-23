@@ -15,7 +15,7 @@ import { noteBlockExtension, blockLineNumbers, blockState, getActiveNoteBlock, t
 import { heynoteEvent, SET_CONTENT, DELETE_BLOCK, APPEND_BLOCK, SET_FONT } from "./annotation.js";
 import { getBlockDelimiter } from "./block/block-parsing.js"
 import { changeCurrentBlockLanguage, triggerCurrenciesLoaded, deleteBlock, selectAll } from "./block/commands.js"
-import { formatBlockContent } from "./block/format-code.js"
+import { formatBlockCommand } from "./block/format-code.js"
 import { getKeymapExtensions } from "./keymap.js"
 import { heynoteCopyCut } from "./clipboard/copy-paste.js"
 import { heynoteDropPaste } from "./clipboard/drag-drop.js"
@@ -454,11 +454,8 @@ export class HeynoteEditor {
         this.defaultBlockAutoDetect = autoDetect === undefined ? true : autoDetect
     }
 
-    formatCurrentBlock() {
-        formatBlockContent({
-            state: this.view.state, 
-            dispatch: this.view.dispatch,
-        })
+    async formatCurrentBlock() {
+        return await formatBlockCommand(this.view)
     }
 
     currenciesLoaded() {

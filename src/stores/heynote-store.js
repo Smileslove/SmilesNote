@@ -11,6 +11,8 @@ import {
     DEFAULT_LEFT_PANEL_WIDTH, FOCUS_EDITOR_EVENT,
 } from "../common/constants"
 
+/** Auto-clear timer for the transient status-bar message. */
+let statusMessageTimer = null
 
 export const useHeynoteStore = defineStore("heynote", {
     state: () => ({
@@ -56,6 +58,9 @@ export const useHeynoteStore = defineStore("heynote", {
         isFullscreen: false,
         isFocused: true,
         systemLocale: navigator.language,
+        // Transient message shown in the status bar (formatting failures, etc.)
+        statusMessage: null,
+        statusMessageKind: "info",
     }),
 
     actions: {
@@ -72,6 +77,33 @@ export const useHeynoteStore = defineStore("heynote", {
                 return
             }
             this.currentEditor.focus()
+        },
+
+        /**
+         * Show a transient message in the status bar.
+         * Used for formatting failures and refusals so they are not silent.
+         */
+        setStatusMessage(message, { kind = "info", timeout = 6000 } = {}) {
+            if (statusMessageTimer !== null) {
+                clearTimeout(statusMessageTimer)
+                statusMessageTimer = null
+            }
+            this.statusMessage = message
+            this.statusMessageKind = kind
+            if (timeout > 0) {
+                statusMessageTimer = setTimeout(() => {
+                    statusMessageTimer = null
+                    this.statusMessage = null
+                }, timeout)
+            }
+        },
+
+        clearStatusMessage() {
+            if (statusMessageTimer !== null) {
+                clearTimeout(statusMessageTimer)
+                statusMessageTimer = null
+            }
+            this.statusMessage = null
         },
 
         setLeftPanelVisible(visible, persist = true) {

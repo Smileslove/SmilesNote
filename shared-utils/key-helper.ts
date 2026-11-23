@@ -17,7 +17,7 @@ export const keyHelpStr = (platform: string, extended: boolean = false) => {
         [`${modChar} + Up`, "Goto previous block"],
         [`${modChar} + A`, "Select all text in a note block. Press again to select the whole buffer"],
         [`${modChar} + ${altChar} + Up/Down`, "Add additional cursor above/below"],
-        [`${altChar} + Shift + F`, "Format block content (works for JSON, JavaScript, HTML, CSS and Markdown)"],
+        [`${altChar} + Shift + F`, "Format block content (JSON, JS/TS, HTML, CSS/SCSS, Markdown, YAML, Python, Go, SQL, Shell, C/C++, Dockerfile, TOML)"],
     ]
 
     if (extended) {

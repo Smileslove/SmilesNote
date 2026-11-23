@@ -49,6 +49,19 @@ contextBridge.exposeInMainWorld("heynote", {
         })
     },
 
+    /**
+     * Read a bundled renderer asset (wasm formatter binaries) as an ArrayBuffer.
+     * Used by the formatter backend in the packaged app, where the renderer runs
+     * from file:// and fetch() cannot read local files.
+     */
+    async readAssetBytes(url) {
+        const data = await ipcRenderer.invoke("formatter:readAsset", url)
+        if (!data) {
+            return null
+        }
+        return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+    },
+
     mainProcess: {
         on(event, callback) {
             ipcRenderer.on(event, callback)

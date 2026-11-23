@@ -338,6 +338,12 @@ const emitCursorChange = (editor) => {
                     if (block && cursorLine) {
                         heynoteStore.currentCursorLine = cursorLine
                         heynoteStore.currentSelectionSize = selectionSize
+                        // A transient status message (e.g. "Rust has no bundled
+                        // formatter") belongs to the block it was produced for;
+                        // do not leave it behind when the language changes.
+                        if (heynoteStore.currentLanguage !== block.language.name) {
+                            heynoteStore.clearStatusMessage()
+                        }
                         heynoteStore.currentLanguage = block.language.name
                         heynoteStore.currentLanguageAuto = block.language.auto
                         heynoteStore.currentBufferName = editor.name

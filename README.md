@@ -33,10 +33,10 @@ Available for Mac, Windows, and Linux.
 -   Currency conversion
 -   Syntax highlighting:
 
-    C++, C#, Clojure, CSS, Elixir, Erlang, Dart, Go, Groovy, HTML, Java, JavaScript, JSX, Kotlin, TypeScript, TOML, TSX, JSON, Lezer, Markdown, Mermaid, PHP, Python, Ruby, Rust, Scala, Shell, SQL, Swift, Vue, XML, YAML
+    C, C++, C#, Clojure, CSS, Dockerfile, Elixir, Erlang, Dart, Go, GraphQL, Groovy, HTML, Java, JavaScript, JSON, JSONC, JSX, Kotlin, Less, Lezer, Markdown, Mermaid, Objective-C, PHP, Protobuf, Python, Ruby, Rust, Scala, SCSS, Shell, SQL, Swift, TOML, TSX, TypeScript, Vue, XML, YAML
     
 -   Language auto-detection
--   Auto-formatting
+-   Auto-formatting (Prettier, wasm formatters, and dprint; 27 block languages)
 -   Multi-cursor editing
 -   Dark & Light themes
 -   Option to set a global hotkey to show/hide the app

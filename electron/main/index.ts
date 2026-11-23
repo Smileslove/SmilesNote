@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Tray, shell, ipcMain, Menu, nativeTheme, globalShortcut, nativeImage, screen } from 'electron'
 import { release } from 'node:os'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import fs from "fs"
 
 import { 
@@ -674,6 +675,38 @@ async function initFileLibrary(win) {
 
 ipcMain.handle("getInitErrors", () => {
     return initErrors
+})
+
+/**
+ * Read a bundled renderer asset (the wasm formatters) as bytes.
+ *
+ * The packaged app loads the renderer from file://, where fetch() refuses the
+ * scheme. The preload bridge forwards the asset URL here and the file is read
+ * from dist/; anything outside the renderer bundle is refused.
+ */
+ipcMain.handle("formatter:readAsset", async (event, assetUrl) => {
+    if (typeof assetUrl !== "string") {
+        return null
+    }
+    let url
+    try {
+        url = new URL(assetUrl)
+    } catch {
+        return null
+    }
+    if (url.protocol !== "file:") {
+        return null
+    }
+    const distRoot = join(process.env.DIST)
+    const filePath = fileURLToPath(url)
+    if (!filePath.startsWith(distRoot + sep)) {
+        return null
+    }
+    try {
+        return await fs.promises.readFile(filePath)
+    } catch {
+        return null
+    }
 })
 
 

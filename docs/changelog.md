@@ -2,6 +2,27 @@
 
 Here are the most notable changes in each release. For a more detailed list of changes, see the [Github Releases page](https://github.com/heyman/heynote/releases).
 
+## Unreleased (SmilesNote)
+
+### Formatting
+
+Block formatting was rebuilt around a new architecture and now covers 27 block
+languages instead of 9. See [formatting-architecture.md](formatting-architecture.md).
+
+- Prettier backends for JSON, JSONC, JavaScript, JSX, TypeScript, TSX, HTML, Vue, CSS,
+  SCSS, Less, Markdown, YAML, GraphQL, XML and Java. HTML/Vue `<script>`/`<style>` and
+  Markdown code fences are now formatted too (previously they were left untouched).
+- Bundled wasm formatters (no external toolchain): Python (Ruff), Go (gofmt), SQL
+  (sql_fmt with `CREATE TABLE` column alignment), Shell (shfmt), C/C++/C#/Objective-C/
+  Protobuf (clang-format, LLVM base style) and Dockerfile (dockerfmt).
+- TOML is formatted with the dprint TOML plugin.
+- Formatting failures and unsupported languages are reported in the status bar (with a
+  line/column for syntax errors) instead of failing silently in the console.
+- The formatter follows the editor's indentation (spaces/tabs and width), never touches
+  block delimiters or `created` metadata, is a single undo step, and refuses to apply a
+  result if the block changed while formatting ran.
+- New block languages: C, Dockerfile, GraphQL, JSONC, Less, Objective-C, Protobuf, SCSS.
+
 ## 2.9.1
 
 - Fix issue with the Heynote window ending up on a screen that has been disconnected

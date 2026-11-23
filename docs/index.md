@@ -18,10 +18,10 @@ Available for Mac, Windows, and Linux.
 -   Currency conversion
 -   Syntax highlighting:
 
-    C++, C#, Clojure, CSS, Elixir, Erlang, Dart, Go, Groovy, HTML, Java, JavaScript, JSX, Kotlin, TypeScript, TOML, TSX, JSON, Lezer, Markdown, PHP, Python, Ruby, Rust, Scala, Shell, SQL, Swift, Vue, XML, YAML
+    C, C++, C#, Clojure, CSS, Dockerfile, Elixir, Erlang, Dart, Go, GraphQL, Groovy, HTML, Java, JavaScript, JSON, JSONC, JSX, Kotlin, Less, Lezer, Markdown, Mermaid, Objective-C, PHP, Protobuf, Python, Ruby, Rust, Scala, SCSS, Shell, SQL, Swift, TOML, TSX, TypeScript, Vue, XML, YAML
     
 -   Language auto-detection
--   Auto-formatting
+-   Auto-formatting (Prettier for web/config formats, bundled wasm formatters for Python, Go, SQL, Shell, C/C++, Dockerfile, and dprint for TOML). See [docs/formatting-architecture.md](formatting-architecture.md).
 -   Multi-cursor editing
 -   Dark & Light themes
 -   Option to set a global hotkey to show/hide the app
@@ -50,7 +50,7 @@ Available for Mac, Windows, and Linux.
 ⌘ + Up              Goto previous block
 ⌘ + A               Select all text in a note block. Press again to select the whole buffer
 ⌘ + ⌥ + Up/Down     Add additional cursor above/below
-⌥ + Shift + F       Format block content (works for JSON, JavaScript, HTML, CSS and Markdown)
+⌥ + Shift + F       Format block content (JSON, JS/TS, HTML, CSS/SCSS, Markdown, YAML, Python, Go, SQL, Shell, C/C++, Dockerfile, TOML)
 ⌘ + ⌥ + [           Fold block(s)
 ⌘ + ⌥ + ]           Unfold block(s)
 ⌘ + ⌥ + .           Toggle block fold
@@ -73,7 +73,7 @@ Ctrl + Down            Goto next block
 Ctrl + Up              Goto previous block
 Ctrl + A               Select all text in a note block. Press again to select the whole buffer
 Ctrl + Alt + Up/Down   Add additional cursor above/below
-Alt + Shift + F        Format block content (works for JSON, JavaScript, HTML, CSS and Markdown)
+Alt + Shift + F        Format block content (JSON, JS/TS, HTML, CSS/SCSS, Markdown, YAML, Python, Go, SQL, Shell, C/C++, Dockerfile, TOML)
 Ctrl + Alt + [         Fold block(s)
 Ctrl + Alt + ]         Unfold block(s)
 Ctrl + Alt + .         Toggle block fold

@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <!-- 'wasm-unsafe-eval' is required by the bundled wasm formatters (Ruff, gofmt,
+       sql_fmt, clang-format, shfmt, dockerfmt, dprint). It allows compiling
+       WebAssembly without allowing arbitrary eval(). -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval';" />
     <meta name="color-scheme" content="light dark">
     <title>heynote</title>
   </head>
