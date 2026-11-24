@@ -9,7 +9,7 @@
  * The protocol carries `path` and `sequence` so a late answer can never be
  * applied to a buffer or document version it was not computed for.
  */
-import { detectBlocks } from "./detect-blocks.js"
+import { detectBlocks } from "./detect.js"
 
 const scope = globalThis
 

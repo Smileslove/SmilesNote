@@ -9,7 +9,7 @@
  */
 import { FormatterError } from "../../errors.js"
 import { clampIndent, clampPrintWidth } from "../../options.js"
-import { formatSqlText } from "../../sql/sqlFormat.js"
+import { formatSqlText } from "../../sql/sql-format.js"
 import { readBinaryAsset } from "./assets.js"
 import { WASM_FORMATTERS as WASM_FORMATTER_IDS, assertComplete } from "../catalog.js"
 
@@ -79,7 +79,7 @@ const CLANG_FILENAMES = {
  * clang-format takes one style string, not an options object.
  * @param {object} options
  */
-export function clangStyle(options) {
+function clangStyle(options) {
     /** @type {Record<string, unknown>} */
     const style = { BasedOnStyle: "LLVM" }
     const indent = clampIndent(options.indent)

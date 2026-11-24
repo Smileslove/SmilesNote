@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { DetectionClient } from "../../src/editor/language-detection/client.js"
+import { DetectionClient } from "../../src/editor/language-detection/detection-client.js"
 
 /** Minimal Worker stand-in: tests drive the responses explicitly. */
 class FakeWorker {

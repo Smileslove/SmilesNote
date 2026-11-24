@@ -32,7 +32,7 @@
  * 失败即回退：结构不像 `CREATE TABLE`、列定义里有行注释、`CREATE TABLE ... AS SELECT`
  * 等拿不准的情况一律返回 null，由调用方用 sql_fmt 的原有结果，绝不半猜半排。
  */
-import { isWord, splitSqlStatements, tokenizeSql, wordUpper } from "./sqlLexer.js"
+import { isWord, splitSqlStatements, tokenizeSql, wordUpper } from "./sql-lexer.js"
 
 /**
  * @typedef {object} SqlFormatOptions

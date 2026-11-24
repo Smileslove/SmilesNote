@@ -16,22 +16,22 @@
  * the visible slice. A window that starts inside a triple-quoted block string
  * cannot know that, so its contents colour as code until the closing `"""`.
  */
-import { LanguageSupport, StreamLanguage, type StringStream } from '@codemirror/language'
-import { tags as t } from '@lezer/highlight'
+import { LanguageSupport, StreamLanguage, type StringStream } from "@codemirror/language"
+import { tags as t } from "@lezer/highlight"
 
 interface GraphQLState {
-  /** A triple-quoted block string continues onto the next line. */
-  inBlockString: boolean
-  /** The next name is a type name (after type/on/implements/&/|). */
-  expectTypeName: boolean
-  /** The next name is an operation or fragment name (after query/fragment). */
-  expectDefinitionName: boolean
-  /** The next name is in type position (`: [User!]!`), resolved by casing. */
-  typePosition: boolean
-  /** Selection sets and SDL bodies live at depth >= 1. */
-  braceDepth: number
-  /** `implements A, B` keeps type position across commas. */
-  implementsList: boolean
+    /** A triple-quoted block string continues onto the next line. */
+    inBlockString: boolean
+    /** The next name is a type name (after type/on/implements/&/|). */
+    expectTypeName: boolean
+    /** The next name is an operation or fragment name (after query/fragment). */
+    expectDefinitionName: boolean
+    /** The next name is in type position (`: [User!]!`), resolved by casing. */
+    typePosition: boolean
+    /** Selection sets and SDL bodies live at depth >= 1. */
+    braceDepth: number
+    /** `implements A, B` keeps type position across commas. */
+    implementsList: boolean
 }
 
 /**
@@ -39,43 +39,43 @@ interface GraphQLState {
  * the grammar's context-sensitivity is intentionally not modelled.
  */
 const KEYWORDS = new Set([
-  'query',
-  'mutation',
-  'subscription',
-  'fragment',
-  'on',
-  'type',
-  'interface',
-  'union',
-  'enum',
-  'input',
-  'schema',
-  'scalar',
-  'extend',
-  'implements',
-  'directive',
-  'repeatable',
+    "query",
+    "mutation",
+    "subscription",
+    "fragment",
+    "on",
+    "type",
+    "interface",
+    "union",
+    "enum",
+    "input",
+    "schema",
+    "scalar",
+    "extend",
+    "implements",
+    "directive",
+    "repeatable",
 ])
 
 /** Keywords followed by a user-defined type name. */
 const TYPE_NAME_KEYWORDS = new Set([
-  'type',
-  'interface',
-  'union',
-  'enum',
-  'input',
-  'schema',
-  'scalar',
-  'extend',
-  'implements',
-  'on',
-  'directive',
+    "type",
+    "interface",
+    "union",
+    "enum",
+    "input",
+    "schema",
+    "scalar",
+    "extend",
+    "implements",
+    "on",
+    "directive",
 ])
 
 /** Keywords followed by an operation or fragment name. */
-const DEFINITION_NAME_KEYWORDS = new Set(['query', 'mutation', 'subscription', 'fragment'])
+const DEFINITION_NAME_KEYWORDS = new Set(["query", "mutation", "subscription", "fragment"])
 
-const BUILTIN_SCALARS = new Set(['String', 'Int', 'Float', 'Boolean', 'ID'])
+const BUILTIN_SCALARS = new Set(["String", "Int", "Float", "Boolean", "ID"])
 
 const NAME_START = /^[_A-Za-z]/
 const NAME_CONTINUE = /[_0-9A-Za-z]/
@@ -89,22 +89,22 @@ const NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?(?![_0-9A-Za-z.])/
  * block string while the theme keeps styling ordinary string tokens.
  */
 const tokenTable = {
-  graphqlComment: t.comment,
-  graphqlString: t.string,
-  graphqlBlockString: t.special(t.string),
-  graphqlNumber: t.number,
-  graphqlBoolean: t.bool,
-  graphqlNull: t.null,
-  graphqlVariable: t.constant(t.variableName),
-  graphqlDirective: t.meta,
-  graphqlKeyword: t.keyword,
-  graphqlBuiltinScalar: t.standard(t.typeName),
-  graphqlTypeName: t.typeName,
-  graphqlEnumValue: t.constant(t.variableName),
-  graphqlDefinitionName: t.definition(t.variableName),
-  graphqlPropertyName: t.propertyName,
-  graphqlBracket: t.bracket,
-  graphqlPunctuation: t.punctuation,
+    graphqlComment: t.comment,
+    graphqlString: t.string,
+    graphqlBlockString: t.special(t.string),
+    graphqlNumber: t.number,
+    graphqlBoolean: t.bool,
+    graphqlNull: t.null,
+    graphqlVariable: t.constant(t.variableName),
+    graphqlDirective: t.meta,
+    graphqlKeyword: t.keyword,
+    graphqlBuiltinScalar: t.standard(t.typeName),
+    graphqlTypeName: t.typeName,
+    graphqlEnumValue: t.constant(t.variableName),
+    graphqlDefinitionName: t.definition(t.variableName),
+    graphqlPropertyName: t.propertyName,
+    graphqlBracket: t.bracket,
+    graphqlPunctuation: t.punctuation,
 }
 
 /**
@@ -114,15 +114,15 @@ const tokenTable = {
  * simply ends at the line break instead of leaking colour onto later lines.
  */
 function readQuotedString(stream: StringStream): void {
-  stream.next()
-  while (!stream.eol()) {
-    const char = stream.next()
-    if (char === '\\') {
-      if (!stream.eol()) stream.next()
-      continue
+    stream.next()
+    while (!stream.eol()) {
+        const char = stream.next()
+        if (char === "\\") {
+            if (!stream.eol()) stream.next()
+            continue
+        }
+        if (char === '"') return
     }
-    if (char === '"') return
-  }
 }
 
 /**
@@ -132,22 +132,19 @@ function readQuotedString(stream: StringStream): void {
  * newline and the next line continues in the same block-string token. Escaped
  * quotes (`\"""`) do not close the string.
  */
-function readBlockStringRemainder(
-  stream: StringStream,
-  state: GraphQLState,
-): void {
-  while (!stream.eol()) {
-    const char = stream.next()
-    if (char === '\\') {
-      if (!stream.eol()) stream.next()
-      continue
+function readBlockStringRemainder(stream: StringStream, state: GraphQLState): void {
+    while (!stream.eol()) {
+        const char = stream.next()
+        if (char === "\\") {
+            if (!stream.eol()) stream.next()
+            continue
+        }
+        if (char === '"' && stream.peek() === '"' && stream.string[stream.pos + 1] === '"') {
+            stream.pos += 2
+            state.inBlockString = false
+            return
+        }
     }
-    if (char === '"' && stream.peek() === '"' && stream.string[stream.pos + 1] === '"') {
-      stream.pos += 2
-      state.inBlockString = false
-      return
-    }
-  }
 }
 
 /**
@@ -160,213 +157,213 @@ function readBlockStringRemainder(
  * not), because a bare `:` is also a field alias or argument separator.
  */
 function classifyName(word: string, state: GraphQLState): string {
-  if (word === 'true' || word === 'false' || word === 'null') {
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    return word === 'null' ? 'graphqlNull' : 'graphqlBoolean'
-  }
-
-  if (BUILTIN_SCALARS.has(word)) {
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    return 'graphqlBuiltinScalar'
-  }
-
-  const inSelectionOrBody = state.braceDepth >= 1
-  const isContextualKeyword = word === 'on' || word === 'implements'
-  if (KEYWORDS.has(word) && (!inSelectionOrBody || isContextualKeyword)) {
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    if (word === 'on' || word === 'implements') {
-      state.expectTypeName = true
-      state.implementsList = word === 'implements'
-    } else if (DEFINITION_NAME_KEYWORDS.has(word)) {
-      state.expectDefinitionName = true
-    } else if (TYPE_NAME_KEYWORDS.has(word)) {
-      state.expectTypeName = true
+    if (word === "true" || word === "false" || word === "null") {
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        return word === "null" ? "graphqlNull" : "graphqlBoolean"
     }
-    return 'graphqlKeyword'
-  }
 
-  if (state.expectDefinitionName) {
-    state.expectDefinitionName = false
-    return 'graphqlDefinitionName'
-  }
-  if (state.expectTypeName) {
-    state.expectTypeName = false
-    return 'graphqlTypeName'
-  }
+    if (BUILTIN_SCALARS.has(word)) {
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        return "graphqlBuiltinScalar"
+    }
 
-  const wasTypePosition = state.typePosition
-  state.typePosition = false
-  if (wasTypePosition) {
-    // GraphQL types are PascalCase; enum values and constants are SCREAMING_CASE.
-    if (/^[A-Z][A-Z0-9_]*$/u.test(word)) return 'graphqlEnumValue'
-    if (/^[A-Z]/u.test(word)) return 'graphqlTypeName'
-  }
-  // Field, argument, alias, enum value and object-value names are the common
-  // case. Without a grammar this is a heuristic, not validated syntax.
-  return 'graphqlPropertyName'
+    const inSelectionOrBody = state.braceDepth >= 1
+    const isContextualKeyword = word === "on" || word === "implements"
+    if (KEYWORDS.has(word) && (!inSelectionOrBody || isContextualKeyword)) {
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        if (word === "on" || word === "implements") {
+            state.expectTypeName = true
+            state.implementsList = word === "implements"
+        } else if (DEFINITION_NAME_KEYWORDS.has(word)) {
+            state.expectDefinitionName = true
+        } else if (TYPE_NAME_KEYWORDS.has(word)) {
+            state.expectTypeName = true
+        }
+        return "graphqlKeyword"
+    }
+
+    if (state.expectDefinitionName) {
+        state.expectDefinitionName = false
+        return "graphqlDefinitionName"
+    }
+    if (state.expectTypeName) {
+        state.expectTypeName = false
+        return "graphqlTypeName"
+    }
+
+    const wasTypePosition = state.typePosition
+    state.typePosition = false
+    if (wasTypePosition) {
+        // GraphQL types are PascalCase; enum values and constants are SCREAMING_CASE.
+        if (/^[A-Z][A-Z0-9_]*$/u.test(word)) return "graphqlEnumValue"
+        if (/^[A-Z]/u.test(word)) return "graphqlTypeName"
+    }
+    // Field, argument, alias, enum value and object-value names are the common
+    // case. Without a grammar this is a heuristic, not validated syntax.
+    return "graphqlPropertyName"
 }
 
 /** Tokenizer for one line; block-string state is carried across lines. */
 function token(stream: StringStream, state: GraphQLState): string | null {
-  if (state.inBlockString) {
-    readBlockStringRemainder(stream, state)
-    return 'graphqlBlockString'
-  }
-  if (stream.eatSpace()) return null
-
-  const char = stream.peek()
-  if (char === undefined) return null
-
-  if (char === '#') {
-    stream.skipToEnd()
-    return 'graphqlComment'
-  }
-
-  if (char === '"') {
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    if (stream.match('"""')) {
-      state.inBlockString = true
-      readBlockStringRemainder(stream, state)
-      return 'graphqlBlockString'
+    if (state.inBlockString) {
+        readBlockStringRemainder(stream, state)
+        return "graphqlBlockString"
     }
-    readQuotedString(stream)
-    return 'graphqlString'
-  }
+    if (stream.eatSpace()) return null
 
-  if (char === '$') {
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    if (stream.eat(NAME_START)) {
-      stream.eatWhile(NAME_CONTINUE)
-      return 'graphqlVariable'
+    const char = stream.peek()
+    if (char === undefined) return null
+
+    if (char === "#") {
+        stream.skipToEnd()
+        return "graphqlComment"
     }
-    return 'graphqlPunctuation'
-  }
 
-  if (char === '@') {
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    if (stream.eat(NAME_START)) {
-      stream.eatWhile(NAME_CONTINUE)
-      return 'graphqlDirective'
+    if (char === '"') {
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        if (stream.match('"""')) {
+            state.inBlockString = true
+            readBlockStringRemainder(stream, state)
+            return "graphqlBlockString"
+        }
+        readQuotedString(stream)
+        return "graphqlString"
     }
-    return 'graphqlPunctuation'
-  }
 
-  if (stream.match(NUMBER)) {
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    return 'graphqlNumber'
-  }
+    if (char === "$") {
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        if (stream.eat(NAME_START)) {
+            stream.eatWhile(NAME_CONTINUE)
+            return "graphqlVariable"
+        }
+        return "graphqlPunctuation"
+    }
 
-  if (NAME_START.test(char)) {
-    const word = (stream.match(NAME) as RegExpMatchArray)[0]
-    return classifyName(word, state)
-  }
+    if (char === "@") {
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        if (stream.eat(NAME_START)) {
+            stream.eatWhile(NAME_CONTINUE)
+            return "graphqlDirective"
+        }
+        return "graphqlPunctuation"
+    }
 
-  if (char === '.') {
-    if (stream.match('...')) return 'graphqlPunctuation'
+    if (stream.match(NUMBER)) {
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        return "graphqlNumber"
+    }
+
+    if (NAME_START.test(char)) {
+        const word = (stream.match(NAME) as RegExpMatchArray)[0]
+        return classifyName(word, state)
+    }
+
+    if (char === ".") {
+        if (stream.match("...")) return "graphqlPunctuation"
+        stream.next()
+        return null
+    }
+
+    if (char === "{") {
+        stream.next()
+        state.braceDepth += 1
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        state.implementsList = false
+        return "graphqlBracket"
+    }
+
+    if (char === "}") {
+        stream.next()
+        state.braceDepth = Math.max(0, state.braceDepth - 1)
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = false
+        state.implementsList = false
+        return "graphqlBracket"
+    }
+
+    if (char === "[") {
+        // A list type keeps the following name in type position: `[User!]!`.
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        state.typePosition = true
+        return "graphqlBracket"
+    }
+
+    if (char === "]" || char === "!" || char === ")" || char === "(") {
+        // `!` and `]` continue a type reference; `(`/`)` end the current position.
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        if (char === "(" || char === ")") state.typePosition = false
+        return "graphqlBracket"
+    }
+
+    if (char === ":") {
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        // `field: Type`, `$var: Type` and `schema { query: Query }`.
+        state.typePosition = true
+        return "graphqlPunctuation"
+    }
+
+    if (char === "=" || char === "|" || char === "&") {
+        stream.next()
+        state.expectTypeName = false
+        state.expectDefinitionName = false
+        // `union U = A | B`, `implements A & B` and default values.
+        state.typePosition = true
+        return "graphqlPunctuation"
+    }
+
+    if (char === ",") {
+        stream.next()
+        state.expectDefinitionName = false
+        // `implements A, B`: the comma separates type names.
+        if (state.implementsList) state.typePosition = true
+        return "graphqlPunctuation"
+    }
+
+    // Unknown or invalid input stays plain text.
     stream.next()
     return null
-  }
-
-  if (char === '{') {
-    stream.next()
-    state.braceDepth += 1
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    state.implementsList = false
-    return 'graphqlBracket'
-  }
-
-  if (char === '}') {
-    stream.next()
-    state.braceDepth = Math.max(0, state.braceDepth - 1)
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = false
-    state.implementsList = false
-    return 'graphqlBracket'
-  }
-
-  if (char === '[') {
-    // A list type keeps the following name in type position: `[User!]!`.
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    state.typePosition = true
-    return 'graphqlBracket'
-  }
-
-  if (char === ']' || char === '!' || char === ')' || char === '(') {
-    // `!` and `]` continue a type reference; `(`/`)` end the current position.
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    if (char === '(' || char === ')') state.typePosition = false
-    return 'graphqlBracket'
-  }
-
-  if (char === ':') {
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    // `field: Type`, `$var: Type` and `schema { query: Query }`.
-    state.typePosition = true
-    return 'graphqlPunctuation'
-  }
-
-  if (char === '=' || char === '|' || char === '&') {
-    stream.next()
-    state.expectTypeName = false
-    state.expectDefinitionName = false
-    // `union U = A | B`, `implements A & B` and default values.
-    state.typePosition = true
-    return 'graphqlPunctuation'
-  }
-
-  if (char === ',') {
-    stream.next()
-    state.expectDefinitionName = false
-    // `implements A, B`: the comma separates type names.
-    if (state.implementsList) state.typePosition = true
-    return 'graphqlPunctuation'
-  }
-
-  // Unknown or invalid input stays plain text.
-  stream.next()
-  return null
 }
 
 const graphqlStreamLanguage = StreamLanguage.define<GraphQLState>({
-  name: 'graphql',
-  startState: () => ({
-    inBlockString: false,
-    expectTypeName: false,
-    expectDefinitionName: false,
-    typePosition: false,
-    braceDepth: 0,
-    implementsList: false,
-  }),
-  token,
-  tokenTable,
-  languageData: {
-    commentTokens: { line: '#' },
-  },
+    name: "graphql",
+    startState: () => ({
+        inBlockString: false,
+        expectTypeName: false,
+        expectDefinitionName: false,
+        typePosition: false,
+        braceDepth: 0,
+        implementsList: false,
+    }),
+    token,
+    tokenTable,
+    languageData: {
+        commentTokens: { line: "#" },
+    },
 })
 
 /**
@@ -376,7 +373,7 @@ const graphqlStreamLanguage = StreamLanguage.define<GraphQLState>({
  * markdown fences need the support object, exactly like the legacy modes.
  */
 export function graphql(): LanguageSupport {
-  return new LanguageSupport(graphqlStreamLanguage)
+    return new LanguageSupport(graphqlStreamLanguage)
 }
 
 /** The stream parser, for block highlighting (Language.parser). */

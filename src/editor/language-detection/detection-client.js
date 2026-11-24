@@ -6,7 +6,7 @@
  * so a late answer is either ignored (stale id) or rejected (mismatched
  * document) instead of being applied to the wrong block.
  */
-export const DETECTION_TIMEOUT_MS = 5000
+const DETECTION_TIMEOUT_MS = 5000
 
 /**
  * @typedef {object} DetectionResult
@@ -151,7 +151,7 @@ function errorText(event) {
 /**
  * Shared client: workers are relatively heavy, one per app is enough.
  *
- * The worker factory is injected by `autodetect.js` so this module stays
+ * The worker factory is injected by `index.js` so this module stays
  * transport-agnostic and can be unit tested with a fake worker.
  */
 let sharedClient = null

@@ -15,15 +15,14 @@
 import { EditorSelection } from "@codemirror/state"
 
 import { blockState, getActiveNoteBlock } from "../block/block.js"
-import { formatSupport, formattingUnavailableReason, languageName, supportsFormatting } from "./capability.js"
+import { formattingUnavailableReason, languageName, supportsFormatting } from "./capability.js"
 import { FormatCode } from "./errors.js"
 import { formatText } from "./format.js"
 import { failureMessage } from "./messages.js"
 import { formatOptionsFromState } from "./options.js"
 
-export { formatSupport, formattingUnavailableReason, languageName, supportsFormatting }
-export { FormatCode }
-export { formatText }
+/** Public API used by the editor command and the status bar. */
+export { formattingUnavailableReason, languageName, supportsFormatting }
 
 /**
  * @typedef {object} FormatOutcome

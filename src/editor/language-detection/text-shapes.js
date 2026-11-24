@@ -33,3 +33,22 @@ export function hasJsxShape(text) {
         />\s*\{[^}\n]+\}/u.test(source)
     )
 }
+
+/** A complete fenced code block is a very strong Markdown signal. */
+export function hasCompleteFencedBlock(text) {
+    if (!text.includes("```") && !text.includes("~~~")) return false
+    let open = null
+    for (const line of text.split("\n")) {
+        const match = /^[ \t]*(`{3,}|~{3,})\s*(.*)$/u.exec(line)
+        if (!match) continue
+        const marker = match[1]
+        if (!open) {
+            open = { marker: marker[0], length: marker.length }
+            continue
+        }
+        if (marker[0] === open.marker && marker.length >= open.length && match[2].trim() === "") {
+            return true
+        }
+    }
+    return false
+}

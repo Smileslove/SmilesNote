@@ -16,7 +16,6 @@ import {
     loadBabelPlugin,
     loadEstreePlugin,
     loadGraphqlPlugin,
-    loadMarkdownPlugin,
     loadPostcssPlugin,
     loadTypescriptPlugin,
     loadYamlPlugin,

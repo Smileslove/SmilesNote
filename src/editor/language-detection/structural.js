@@ -9,7 +9,7 @@
  * that, and also that every non-plain language has a way to be detected.
  */
 
-import { withoutStringLiterals, hasJsxShape } from "./text-shapes.js"
+import { hasCompleteFencedBlock, hasJsxShape, withoutStringLiterals } from "./text-shapes.js"
 
 function typescriptStructure(text) {
     let score = 0
@@ -54,25 +54,6 @@ function jsonParses(text) {
     } catch {
         return false
     }
-}
-
-/** A complete fenced code block is a very strong Markdown signal. */
-export function hasCompleteFencedBlock(text) {
-    if (!text.includes("```") && !text.includes("~~~")) return false
-    let open = null
-    for (const line of text.split("\n")) {
-        const match = /^[ \t]*(`{3,}|~{3,})\s*(.*)$/u.exec(line)
-        if (!match) continue
-        const marker = match[1]
-        if (!open) {
-            open = { marker: marker[0], length: marker.length }
-            continue
-        }
-        if (marker[0] === open.marker && marker.length >= open.length && match[2].trim() === "") {
-            return true
-        }
-    }
-    return false
 }
 
 /** @type {Record<string, (text: string) => number>} */
@@ -468,9 +449,4 @@ export const STRUCTURAL = {
         if (/^\s*\w+\s*\{\s*$/mu.test(text) && /\{\s*\}/u.test(text)) score += 0.6
         return score
     },
-}
-
-/** Language ids that have a structural scorer. */
-export function structuralLanguages() {
-    return Object.keys(STRUCTURAL)
 }

@@ -81,5 +81,8 @@ highlighting).
 - There is no machine-learned fallback any more. Rare or structurally vague
   snippets (a single `println`, a bare SQL fragment) will not be classified;
   the user can pick the language once and the block stays manual.
+- At most 200 auto blocks are analyzed per pass, and only the first 16 KB of a
+  block is sent to the worker; structure at the top of a block is what matters,
+  and this bounds the cost for very large notes.
 - The worker is a bundled classic worker, so it also works in the packaged
   Electron app (`file://`); nothing is downloaded at runtime.

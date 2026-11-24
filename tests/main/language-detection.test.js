@@ -6,11 +6,11 @@ import {
     MIN_LENGTH,
     PLAIN_LANGUAGE,
     STRONG_CONFIDENCE,
+    detectBlocks,
     detectLanguage,
     detectableLanguages,
 } from "../../src/editor/language-detection/detect.js"
-import { detectBlocks } from "../../src/editor/language-detection/detect-blocks.js"
-import { hasCompleteFencedBlock } from "../../src/editor/language-detection/structural.js"
+import { hasCompleteFencedBlock } from "../../src/editor/language-detection/text-shapes.js"
 
 /** One representative snippet per block language (except plain text/math). */
 const POSITIVES = {

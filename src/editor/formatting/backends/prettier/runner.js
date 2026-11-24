@@ -47,7 +47,7 @@ function unwrapPlugin(module) {
  * @param {object} options forward FormatOptions
  * @param {Record<string, unknown>} [defaults] plan-specific overrides
  */
-export function prettierOptions(parser, options = {}, defaults = {}) {
+function prettierOptions(parser, options = {}, defaults = {}) {
     /** @type {Record<string, unknown>} */
     const resolved = { parser }
     const indent = clampIndent(options.indent)

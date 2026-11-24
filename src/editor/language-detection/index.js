@@ -3,7 +3,7 @@
  *
  * Integration layer: decides *when* to ask for a detection and *whether* to
  * apply the answer. The scoring lives in `detect.js` (pure), the worker protocol
- * in `client.js` / `detect.worker.js`.
+ * in `detection-client.js` / `detect.worker.js`.
  *
  * Rules that matter for a good user experience:
  *
@@ -37,7 +37,7 @@ import {
     IMAGE_RESIZE,
 } from "../annotation.js"
 import DetectWorker from "./detect.worker.js?worker"
-import { getDetectionClient } from "./client.js"
+import { getDetectionClient } from "./detection-client.js"
 import {
     DETECTION_SAMPLE_LIMIT,
     MIN_LENGTH,

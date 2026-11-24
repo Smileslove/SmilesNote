@@ -4,7 +4,7 @@
  * Replaces the previous guesslang (TF.js model) detector. Guessing wrong
  * actively harms editing, so the engine is conservative: a block only changes
  * language when the winner is clearly ahead of the runner-up, and the caller
- * applies additional hysteresis (see `autodetect.js`).
+ * applies additional hysteresis (see `index.js`).
  *
  * Three layers, strongest first:
  *
@@ -21,9 +21,9 @@
  * can run in a worker and be unit tested with a plain corpus.
  */
 import { SIGNATURES } from "./signatures.js"
-import { STRUCTURAL, hasCompleteFencedBlock } from "./structural.js"
+import { STRUCTURAL } from "./structural.js"
 import { SIGNALS, KEYWORDS } from "./signals.js"
-import { withoutStringLiterals } from "./text-shapes.js"
+import { hasCompleteFencedBlock, withoutStringLiterals } from "./text-shapes.js"
 
 export const PLAIN_LANGUAGE = "text"
 
@@ -222,4 +222,28 @@ export function detectLanguage(text) {
 
 function round(value) {
     return Number(value.toFixed(2))
+}
+
+/**
+ * Detect a batch of blocks (the worker's entry point).
+ *
+ * Kept here rather than in the worker so the exact same code runs in unit
+ * tests, without a DOM or a worker.
+ *
+ * @param {Array<{index:number, text:string}>} blocks
+ * @returns {Array<{index:number, language:string, confidence:number, runnerUp:string|null, stable:boolean}>}
+ */
+export function detectBlocks(blocks) {
+    const results = []
+    for (const block of blocks) {
+        const detection = detectLanguage(block.text)
+        results.push({
+            index: block.index,
+            language: detection.language,
+            confidence: detection.confidence,
+            runnerUp: detection.runnerUp,
+            stable: detection.stable,
+        })
+    }
+    return results
 }
