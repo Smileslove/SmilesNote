@@ -10,7 +10,6 @@ import pkg from './package.json'
 import path from 'path'
 
 import { keyHelpStr } from "./shared-utils/key-helper";
-import { LANGUAGES }  from "./src/editor/languages"
 
 rmSync('dist-electron', { recursive: true, force: true })
 
@@ -39,15 +38,6 @@ $2`
 	fs.writeFileSync(docsPath, docs)
 }
 
-const updateGuesslangLanguagesInWebWorker = async () => {
-	const langDetectWorkerPath = path.resolve(__dirname, 'public', 'langdetect-worker.js')
-	let workerFileContents = fs.readFileSync(langDetectWorkerPath, 'utf-8')
-	const langListRegex = /^GUESSLANG_LANGUAGES = \[[^\]]+\]/gms
-	const newLangList = JSON.stringify(LANGUAGES.map(l => l.guesslang).filter(l => l !== null))
-	workerFileContents = workerFileContents.replace(langListRegex, `GUESSLANG_LANGUAGES = ${newLangList}`)
-	fs.writeFileSync(langDetectWorkerPath, workerFileContents)
-}
-
 
 const resolveConfig = {
 	alias: {
@@ -62,7 +52,6 @@ export default defineConfig({
 	plugins: [
 		vue(),
 		injectKeybindsInDocs(),
-		updateGuesslangLanguagesInWebWorker(),
 		electron([
 			{
 				// Main-Process entry file of the Electron App.

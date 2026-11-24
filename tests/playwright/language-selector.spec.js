@@ -14,3 +14,10 @@ test("test language selector search by file ending", async ({ page }) => {
     await page.locator("body").pressSequentially("cpp")
     await expect(page.locator("css=.language-selector .items > li.selected")).toHaveText("C++")
 })
+
+
+test("test language selector search by alias", async ({ page }) => {
+    await page.locator("body").press(heynotePage.agnosticKey("Mod+L"))
+    await page.locator("body").pressSequentially("gql")
+    await expect(page.locator("css=.language-selector .items > li.selected")).toHaveText("GraphQL")
+})

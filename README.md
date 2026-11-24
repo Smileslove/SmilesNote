@@ -35,7 +35,7 @@ Available for Mac, Windows, and Linux.
 
     C, C++, C#, Clojure, CSS, Dockerfile, Elixir, Erlang, Dart, Go, GraphQL, Groovy, HTML, Java, JavaScript, JSON, JSONC, JSX, Kotlin, Less, Lezer, Markdown, Mermaid, Objective-C, PHP, Protobuf, Python, Ruby, Rust, Scala, SCSS, Shell, SQL, Swift, TOML, TSX, TypeScript, Vue, XML, YAML
     
--   Language auto-detection
+-   Language auto-detection (rule-based, 43 block languages, no downloads)
 -   Auto-formatting (Prettier, wasm formatters, and dprint; 27 block languages)
 -   Multi-cursor editing
 -   Dark & Light themes

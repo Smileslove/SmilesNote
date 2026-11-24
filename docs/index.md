@@ -20,7 +20,7 @@ Available for Mac, Windows, and Linux.
 
     C, C++, C#, Clojure, CSS, Dockerfile, Elixir, Erlang, Dart, Go, GraphQL, Groovy, HTML, Java, JavaScript, JSON, JSONC, JSX, Kotlin, Less, Lezer, Markdown, Mermaid, Objective-C, PHP, Protobuf, Python, Ruby, Rust, Scala, SCSS, Shell, SQL, Swift, TOML, TSX, TypeScript, Vue, XML, YAML
     
--   Language auto-detection
+-   Language auto-detection (43 block languages, rule-based, no downloads)
 -   Auto-formatting (Prettier for web/config formats, bundled wasm formatters for Python, Go, SQL, Shell, C/C++, Dockerfile, and dprint for TOML). See [docs/formatting-architecture.md](formatting-architecture.md).
 -   Multi-cursor editing
 -   Dark & Light themes
@@ -28,6 +28,21 @@ Available for Mac, Windows, and Linux.
 -   Default, Emacs-like or custom key bindings
 -   Spellchecking
 
+
+## Language Auto-detection<a id="language-auto-detection"></a>
+
+Blocks in **auto** mode follow what you type: paste a JSON response, a SQL query
+or a Python snippet into an auto block and its language is detected and
+highlighted after you pause typing. Auto mode is on for new blocks by default
+(*Settings → Auto-detection*), and the language selector's **Auto-detect** entry
+turns it on for an existing block. Picking a language explicitly turns auto mode
+off; such a block is never re-detected.
+
+Detection is rule-based (signatures, structure and keywords), runs in a worker,
+and is deliberately conservative: short or ambiguous snippets stay plain text, an
+already-typed block keeps its language until the evidence is strong, and a
+manual choice always wins. See [language-detection.md](language-detection.md) for
+the scoring model and how to add detection for a new language.
 
 ## Default Key Bindings<a id="default-key-bindings"></a>
 

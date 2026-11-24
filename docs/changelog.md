@@ -4,6 +4,32 @@ Here are the most notable changes in each release. For a more detailed list of c
 
 ## Unreleased (SmilesNote)
 
+### Language auto-detection
+
+Automatic language detection was rebuilt and no longer uses the bundled
+guesslang (TensorFlow.js) model, removing ~1 MB of JavaScript and its language
+list.
+
+- Detection is now a pure, rule-based scorer: unambiguous signatures, per-language
+  structural checks, and capped keyword/signal evidence, with a confidence and
+  runner-up margin. See [language-detection.md](language-detection.md).
+- Every non-plain block language can be detected (43 languages, previously 29),
+  including JSX, TSX, SCSS, Less, GraphQL, Dockerfile, Protobuf, Objective-C, C,
+  JSONC, Mermaid and Lezer.
+- All auto blocks of a note are analyzed in one debounced worker batch instead of
+  only the block under the cursor.
+- Detection no longer relies on the cursor: each result carries the block index,
+  document sequence and exact text it was computed from, so a slow answer can
+  never rewrite the wrong block or clobber newer input.
+- Ambiguous languages no longer trade places on every keystroke: a winner must
+  clearly lead the runner-up, and an existing language is kept until the text is
+  long enough or the evidence is strong.
+- Prose stays plain text (schedules, "TODO: ..." lists, English sentences with SQL
+  words, release notes, ...), and replacing a block body with prose clears stale
+  syntax.
+- The language selector now searches aliases (`gql`, `yml`, `c++`, `ps1`, ...)
+  instead of the removed guesslang names.
+
 ### Formatting
 
 Block formatting was rebuilt around a new architecture and now covers 27 block

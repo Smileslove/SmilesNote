@@ -4,18 +4,15 @@
 
     const items = LANGUAGES.map(l => {
         return {
-            "token": l.token, 
+            "token": l.token,
             "name": l.name,
-            "guesslang": l.guesslang,
+            // Extra search terms (file extensions, common shorthands).
+            "aliases": [...(l.aliases ?? []), l.token].join(" "),
         }
     }).sort((a, b) => {
         return a.name.localeCompare(b.name)
     })
-    items.unshift({token: "auto", name:"Auto-detect"})
-
-    items.forEach((item, idx) => {
-        item.preparedName = fuzzysort.prepare(item.name)
-    })
+    items.unshift({token: "auto", name: "Auto-detect", aliases: "auto detect automatic"})
 
     export default {
         data() {
@@ -36,7 +33,7 @@
                     return items
                 }
                 const searchResults = fuzzysort.go(this.filter, items, {
-                    keys: ['name', 'guesslang'],
+                    keys: ['name', 'aliases'],
                 })
                 return searchResults.map(result => {
                     const highlight = result[0].highlight("<b>", "</b>")

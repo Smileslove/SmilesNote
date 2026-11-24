@@ -146,6 +146,23 @@ test.describe('electron app', { tag: "@e2e" }, () => {
         expect(bufferContent.endsWith("Hello World!")).toBeTruthy()
     })
 
+    test('auto-detects block languages in the packaged app', async () => {
+        await expect.poll(async () => (await heynotePage.getBlocks()).length).toBeGreaterThan(0)
+        await heynotePage.setContent(`
+∞∞∞text-a
+import math
+
+def area(r):
+    return math.pi * r ** 2
+
+print(area(2))
+`)
+        await expect
+            .poll(async () => (await heynotePage.getBlocks())[0].language.name, { timeout: 20000 })
+            .toBe('python')
+        expect((await heynotePage.getBlocks())[0].language.auto).toBe(true)
+    })
+
     test('pastes image data, stores it, and copy button writes image to clipboard', async () => {
         await expect.poll(async () => (await heynotePage.getBlocks()).length).toBeGreaterThan(0)
 

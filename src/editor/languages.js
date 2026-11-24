@@ -56,16 +56,16 @@ class Language {
      * @param token: The token used to identify the language in the buffer content
      * @param name: The name of the language
      * @param parser: The Lezer parser used to parse the language
-     * @param guesslang: The name of the language as used by the guesslang library
+     * @param aliases: extra names used only by the language selector's search
      * @param formatter: The formatter spec for the language (if any)
      * @param inheritIndentation: If true, the indentService will return null for blocks of this type, which will 
      *                            result in the  line inheriting the indentation of the one above it
      */
-    constructor({ token, name, parser, guesslang, formatter, inheritIndentation }) {
+    constructor({ token, name, parser, aliases, formatter, inheritIndentation }) {
         this.token = token
         this.name = name
         this.parser = parser
-        this.guesslang = guesslang
+        this.aliases = aliases ?? []
         this.formatter = formatter
         this.inheritIndentation = inheritIndentation
     }
@@ -76,21 +76,21 @@ export const LANGUAGES = [
         token: "text",
         name: "Plain Text",
         parser: null,
-        guesslang: null,
+        aliases: ["plain", "txt"],
         inheritIndentation: true,
     }),
     new Language({
         token: "math",
         name: "Math",
         parser: mathjsLanguage.parser,
-        guesslang: null,
+        aliases: ["calc", "calculator"],
         inheritIndentation: true,
     }),
     new Language({
         token: "json",
         name: "JSON",
         parser: jsonLanguage.parser,
-        guesslang: "json",
+        aliases: ["json"],
         formatter: {kind: "prettier", parser: "json-stringify"},
     }),
     new Language({
@@ -99,28 +99,28 @@ export const LANGUAGES = [
         // JSON with comments/trailing commas. Prettier's lenient json parser
         // keeps the author's line wrapping, so it does not force expansion.
         parser: jsonLanguage.parser,
-        guesslang: null,
+        aliases: ["json5"],
         formatter: {kind: "prettier", parser: "json"},
     }),
     new Language({
         token: "python",
         name: "Python",
         parser: pythonLanguage.parser,
-        guesslang: "py",
+        aliases: ["py", "python3"],
         formatter: {kind: "wasm", formatter: "python"},
     }),
     new Language({
         token: "html",
         name: "HTML",
         parser: htmlLanguage.parser,
-        guesslang: "html",
+        aliases: ["htm"],
         formatter: {kind: "prettier", parser: "html"},
     }),
     new Language({
         token: "sql",
         name: "SQL",
         parser: StandardSQL.language.parser,
-        guesslang: "sql",
+        aliases: ["sqlite", "mysql", "postgresql"],
         inheritIndentation: true,
         formatter: {kind: "wasm", formatter: "sql"},
     }),
@@ -128,33 +128,33 @@ export const LANGUAGES = [
         token: "markdown",
         name: "Markdown",
         parser: markdownLanguage.parser,
-        guesslang: "md",
+        aliases: ["md"],
         formatter: {kind: "prettier", parser: "markdown"},
     }),
     new Language({
         token: "java",
         name: "Java",
         parser: javaLanguage.parser,
-        guesslang: "java",
+        aliases: ["java"],
         formatter: {kind: "prettier", parser: "java"},
     }),
     new Language({
         token: "lezer",
         name: "Lezer",
         parser: lezerLanguage.parser,
-        guesslang: null,
+        aliases: ["grammar"],
     }),
     new Language({
         token: "php",
         name: "PHP",
         parser: phpLanguage.configure({top:"Program"}).parser,
-        guesslang: "php",
+        aliases: ["php"],
     }),
     new Language({
         token: "css",
         name: "CSS",
         parser: cssLanguage.parser,
-        guesslang: "css",
+        aliases: ["css"],
         formatter: {kind: "prettier", parser: "css"},
     }),
     new Language({
@@ -163,35 +163,35 @@ export const LANGUAGES = [
         // Approximate highlighting: reuses the CSS parser. Formatting is exact
         // (Prettier's scss parser).
         parser: cssLanguage.parser,
-        guesslang: null,
+        aliases: ["sass"],
         formatter: {kind: "prettier", parser: "scss"},
     }),
     new Language({
         token: "less",
         name: "Less",
         parser: cssLanguage.parser,
-        guesslang: null,
+        aliases: ["less"],
         formatter: {kind: "prettier", parser: "less"},
     }),
     new Language({
         token: "xml",
         name: "XML",
         parser: xmlLanguage.parser,
-        guesslang: "xml",
+        aliases: ["svg", "xhtml"],
         formatter: {kind: "prettier", parser: "xml"},
     }),
     new Language({
         token: "graphql",
         name: "GraphQL",
         parser: graphqlParser,
-        guesslang: null,
+        aliases: ["gql"],
         formatter: {kind: "prettier", parser: "graphql"},
     }),
     new Language({
         token: "cpp",
         name: "C++",
         parser: cppLanguage.parser,
-        guesslang: "cpp",
+        aliases: ["c++", "cplusplus"],
         formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
@@ -200,183 +200,183 @@ export const LANGUAGES = [
         parser: cppLanguage.parser,
         // Guesslang cannot reliably tell C from C++; leave auto-detection to C++
         // (the user can still pick C explicitly).
-        guesslang: null,
+        aliases: ["c89", "c99"],
         formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "rust",
         name: "Rust",
         parser: rustLanguage.parser,
-        guesslang: "rs",
+        aliases: ["rs"],
     }),
     new Language({
         token: "csharp",
         name: "C#",
         parser: csharpLanguage.parser,
-        guesslang: "cs",
+        aliases: ["cs", "c#"],
         formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "objectivec",
         name: "Objective-C",
         parser: StreamLanguage.define(objectiveC).parser,
-        guesslang: null,
+        aliases: ["objc", "m"],
         formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "protobuf",
         name: "Protobuf",
         parser: StreamLanguage.define(protobuf).parser,
-        guesslang: null,
+        aliases: ["proto"],
         formatter: {kind: "wasm", formatter: "clang"},
     }),
     new Language({
         token: "ruby",
         name: "Ruby",
         parser: StreamLanguage.define(ruby).parser,
-        guesslang: "rb",
+        aliases: ["rb"],
     }),
     new Language({
         token: "shell",
         name: "Shell",
         parser: StreamLanguage.define(shell).parser,
-        guesslang: "sh",
+        aliases: ["sh", "bash", "zsh"],
         formatter: {kind: "wasm", formatter: "sh"},
     }),
     new Language({
         token: "dockerfile",
         name: "Dockerfile",
         parser: StreamLanguage.define(dockerFile).parser,
-        guesslang: null,
+        aliases: ["docker"],
         formatter: {kind: "wasm", formatter: "dockerfile"},
     }),
     new Language({
         token: "yaml",
         name: "YAML",
         parser: StreamLanguage.define(yaml).parser,
-        guesslang: "yaml",
+        aliases: ["yml"],
         formatter: {kind: "prettier", parser: "yaml"},
     }),
     new Language({
         token: "toml",
         name: "TOML",
         parser: StreamLanguage.define(toml).parser,
-        guesslang: "toml",
+        aliases: ["toml"],
         formatter: {kind: "dprint", plugin: "toml"},
     }),
     new Language({
         token: "golang",
         name: "Go",
         parser: StreamLanguage.define(go).parser,
-        guesslang: "go",
+        aliases: ["go"],
         formatter: {kind: "wasm", formatter: "go"},
     }),
     new Language({
         token: "clojure",
         name: "Clojure",
         parser: StreamLanguage.define(clojure).parser,
-        guesslang: "clj",
+        aliases: ["clj"],
     }),
     new Language({
         token: "elixir",
         name: "Elixir",
         parser: elixirLanguage.parser,
-        guesslang: "ex",
+        aliases: ["ex", "exs"],
     }),
     new Language({
         token: "erlang",
         name: "Erlang",
         parser: StreamLanguage.define(erlang).parser,
-        guesslang: "erl",
+        aliases: ["erl"],
     }),
     new Language({
         token: "javascript",
         name: "JavaScript",
         parser: javascriptLanguage.parser,
-        guesslang: "js",
+        aliases: ["js", "mjs", "cjs", "node"],
         formatter: {kind: "prettier", parser: "babel"},
     }),
     new Language({
         token: "jsx",
         name: "JSX",
         parser: jsxLanguage.parser,
-        guesslang: null,
+        aliases: ["react"],
         formatter: {kind: "prettier", parser: "babel"},
     }),
     new Language({
         token: "typescript",
         name: "TypeScript",
         parser: typescriptLanguage.parser,
-        guesslang: "ts",
+        aliases: ["ts"],
         formatter: {kind: "prettier", parser: "typescript"},
     }),
     new Language({
         token: "tsx",
         name: "TSX",
         parser: tsxLanguage.parser,
-        guesslang: null,
+        aliases: ["react", "tsx"],
         formatter: {kind: "prettier", parser: "typescript"},
     }),
     new Language({
         token: "swift",
         name: "Swift",
         parser: StreamLanguage.define(swift).parser,
-        guesslang: "swift",
+        aliases: ["swift"],
     }),
     new Language({
         token: "kotlin",
         name: "Kotlin",
         parser: StreamLanguage.define(kotlin).parser,
-        guesslang: "kt",
+        aliases: ["kt", "kts"],
     }),
     new Language({
         token: "lua",
         name: "Lua",
         parser: StreamLanguage.define(lua).parser,
-        guesslang: "lua",
+        aliases: ["lua"],
     }),
     new Language({
         token: "groovy",
         name: "Groovy",
         parser: StreamLanguage.define(groovy).parser,
-        guesslang: "groovy",
+        aliases: ["groovy"],
     }),
     new Language({
         token: "diff",
         name: "Diff",
         parser: StreamLanguage.define(diff).parser,
-        guesslang: null,
+        aliases: ["patch"],
     }),
     new Language({
         token: "powershell",
         name: "PowerShell",
         parser: StreamLanguage.define(powerShell).parser,
-        guesslang: "ps1",
+        aliases: ["ps1", "pwsh"],
     }),
     new Language({
         token: "vue",
         name: "Vue",
         parser: vueLanguage.parser,
-        guesslang: null,
+        aliases: ["sfc"],
         formatter: {kind: "prettier", parser: "vue"},
     }),
     new Language({
         token: "dart",
         name: "Dart",
         parser: StreamLanguage.define(dart).parser,
-        guesslang: "dart",
+        aliases: ["dart"],
     }),
     new Language({
         token: "scala",
         name: "Scala",
         parser: StreamLanguage.define(scala).parser,
-        guesslang: "scala",
+        aliases: ["scala"],
     }),
     new Language({
         token: "mermaid",
         name: "Mermaid",
         parser: mermaidLanguage.parser ,
-        guesslang: null,
+        aliases: ["mmd"],
     }),
 ]
 
